@@ -234,7 +234,6 @@ export function getDisableWhenRange(disableCertainDate: any[],disableDays: any[]
 
   const disableCertainDayFormat: string[] = [];
   getDayArr?.forEach((dy: Date)=>{
-    console.log(disableDays.map((l)=>l.toLowerCase()), "toLowwercase")
     if(disableDays.includes(daysArr[(dy.getDay())])){
       disableCertainDayFormat.push(formatDay(new Date(dy)));
     } 
