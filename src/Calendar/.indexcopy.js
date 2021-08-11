@@ -3,6 +3,7 @@ import { useEffect, useState, useCallback, useMemo } from 'react';
 import CldDateField from "../Fields/cldDateField";
 import {
   getDisableDate,
+  getDisableDays,
   getDisableYear,
   getDisableCertainDate,
   getDisableWhenRange,
@@ -11,9 +12,8 @@ import {
   addZero,
   setMinDate,
   setMaxDate,
-  getDisableDays,
 } from "../cldDisable";
-import { disableLeftArrow, disableRightArrow, getDisableDateForArrow } from "./disableArrow";
+import { disableLeftArrow, disableRightArrow, getDisableDateForArrow, } from "./disableArrow";
 import { SelectMonthField, SelectYearField } from "../Fields/cldSelectField";
 import {dateRange, getDaysInMonth} from "./dateRange";
 import "./calendar.scss";
@@ -44,10 +44,21 @@ function Calendar({
   defaultValue,
   disableDays,
 }: any) {
-
-  const disableState = useMemo(() => {
-    return disableDates || "";
-  }, [disableDates]);
+  const currentdate = useMemo(() => {
+    if (minDate && new Date(minDate) > new Date()) {
+      return new Date(minDate);
+    }
+    if (minDate && maxDate && new Date(minDate) < new Date() && new Date(maxDate) < new Date()) {
+      return new Date(minDate);
+    }
+    if (maxDate && new Date(maxDate) < new Date()) {
+      return new Date(new Date(maxDate));
+    }
+    return new Date();
+  }, [minDate, maxDate]);
+  const findDaysInMonth = new Date(currentdate.getFullYear(), currentdate.getMonth() + 1, 0).getDate();
+  const findStartDayInMonth = new Date(currentdate.getFullYear(), currentdate.getMonth(), 1).getDay();
+  const disableState = disableDates || "";
 
   const selectType = useMemo(() => {
     return selectDateType || "single";
@@ -65,15 +76,11 @@ function Calendar({
     return duelSlotDates || [];
   }, [duelSlotDates]);
 
-  const disableDay = useMemo(() => {
-    return disableDays?.map((l: string)=>l.toLowerCase()) || []
-  }, [disableDays])
-
-  const [getDate, setGetDate] = useState<any>();
-  const [getStartDay, setGetStartDay] = useState<any>();
-  const [calenderDates, setCalenderDates] = useState<Array<object>>([]);
-  const [dynMonth, setDynMonth] = useState<any>();
-  const [dynYear, setDynYear] = useState<any>();
+  const [getDate, setGetDate] = useState(findDaysInMonth);
+  const [getStartDay, setGetStartDay] = useState(findStartDayInMonth);
+  const [calenderDates, setCalenderDates] = useState<Array<object>>();
+  const [dynMonth, setDynMonth] = useState(currentdate.getMonth() + 1);
+  const [dynYear, setDynYear] = useState(currentdate.getFullYear());
   const [baseId, setBaseId] = useState<Array<string>>([]);
   const [rangeId, setRangeId] = useState<Array<string>>([]);
   const [inRange, setInRange] = useState<any>();
@@ -93,33 +100,12 @@ function Calendar({
 
   const handleDisableArrow = useCallback(() => {
     setDisableArrow(getDisableDateForArrow(disableState, dynMonth, dynYear));
-    if(disableDay?.length > 0){
-      setDaysInMonth(getDaysInMonth(dynMonth - 1, dynYear));
-    }
-  }, [disableDay, disableState, dynMonth, dynYear]);
+    disableDays?.length > 0 && setDaysInMonth(getDaysInMonth(dynMonth - 1, dynYear))
+  }, [disableDays?.length, disableState, dynMonth, dynYear]);
 
   useEffect(() => {
     handleDisableArrow();
   }, [handleDisableArrow]);
-
-  useEffect(() => {
-    let currentdate
-    if (minDate && new Date(minDate) > new Date()) {
-      currentdate = new Date(minDate);
-    }else if (minDate && maxDate && new Date(minDate) < new Date() && new Date(maxDate) < new Date()) {
-      currentdate = new Date(minDate);
-    }else if (maxDate && new Date(maxDate) < new Date()) {
-      currentdate = new Date(new Date(maxDate));
-    }else{
-      currentdate = new Date();
-    }
-    const findDaysInMonth = new Date(currentdate.getFullYear(), currentdate.getMonth() + 1, 0).getDate();
-    const findStartDayInMonth = new Date(currentdate.getFullYear(), currentdate.getMonth(), 1).getDay();
-    setGetDate(findDaysInMonth);
-    setGetStartDay(findStartDayInMonth)
-    setDynMonth(currentdate.getMonth() + 1)
-    setDynYear(currentdate.getFullYear())
-  }, [minDate, maxDate]);
 
   useEffect(() => {
     if (disableState === "past" || disableState === "future" || minDate || maxDate) {
@@ -149,6 +135,14 @@ function Calendar({
       return
     }
 
+    if(selectDateType === "single" && defaultValue && defaultValue.date){
+      let singleDefaultDate =  new Date(defaultValue.date)
+      let singleDefaultId = `${addZero(singleDefaultDate.getDate())}${addZero(singleDefaultDate.getMonth() + 1)}${singleDefaultDate.getFullYear()}`
+      setStartDate(singleDefaultDate)
+      setBaseId([singleDefaultId])
+      return
+    }
+
    if(selectDateType === "multiple" && defaultValue && defaultValue.length > 0){
     let setDefaultDate: Array<string> = []
     let getInitailActualDate: Array<Date> = []
@@ -160,17 +154,7 @@ function Calendar({
       const multipleDefaultDate = setDefaultDate
       setMultipleDate(getInitailActualDate)
       setBaseId(multipleDefaultDate)
-      return
     }
-
-    if(defaultValue && defaultValue.date){
-      let singleDefaultDate =  new Date(defaultValue.date)
-      let singleDefaultId = `${addZero(singleDefaultDate.getDate())}${addZero(singleDefaultDate.getMonth() + 1)}${singleDefaultDate.getFullYear()}`
-      setStartDate(singleDefaultDate)
-      setBaseId([singleDefaultId])
-      return
-    }
-
   },[defaultValue, selectDateType])
 
   const rangeCalculater = useCallback(
@@ -331,6 +315,7 @@ function Calendar({
               Number(inRange) <= i - getStartDay && `${templateRangeHighLightbg} cld_inrangeFirstIndex`;
           }
         }
+        // disableDate
         const disableDate =
           (disableState &&
             !(minDate && disableDates === "past") &&
@@ -348,14 +333,14 @@ function Calendar({
             ));
 
         const showDisableWhenRange =
-          rangeId.length > 1 && (disableCertainDate.length > 0 || disableDay.length > 0) && 
-          getDisableWhenRange(disableCertainDate,disableDay, new Date(dateTypeId), rangeStartDate, rangeEndDate, daysInMonth);
+          rangeId.length > 1 && (disableCertainDate.length > 0 || disableDays.length > 0) && 
+          getDisableWhenRange(disableCertainDate,disableDays, new Date(dateTypeId), rangeStartDate, rangeEndDate, daysInMonth);
 
         const disableSpecificDate =
           disableCertainDate.length > 0 && getDisableCertainDate(new Date(dateTypeId), disableCertainDate);
 
         // disableDay
-        const disableDayState = disableDay?.length > 0 && getDisableDays(disableDay, dateTypeId)
+        const disableDayState = disableDays.length > 0 && getDisableDays(disableDays, dateTypeId)
 
         // dualSlots || singleSlots
         const slotsState = duelSlots.length > 0 || singleSlots.length > 0;
@@ -369,9 +354,9 @@ function Calendar({
               slotClass = "cld_cellHoverMg";
             }
           } else {
-            slotClass = singleSlots.length > 0 ? "cld_cellHoverMgbtSingle" : "cld_cellHoverMgbt";
+            slotClass = "cld_cellHoverMgbt";
           }
-        } 
+        }
 
         let disableDateRangeClass;
         if (disableDate) {
@@ -451,29 +436,29 @@ function Calendar({
     }
     setCalenderDates(trDate);
   }, [
-     templateClr,
-     getDate,
-     getStartDay,
-     dynMonth,
-     dynYear,
-     rangeId,
-     startAndendDate.startDate,
-     startAndendDate.endDate,
-     inRange,
-     selectType,
-     baseId,
-     disableState,
-     minDate,
-     disableDates,
-     maxDate,
-     disableCertainDate,
-     disableDay,
-     daysInMonth,
-     duelSlots,
-     singleSlots,
-     slotsDate,
-     highLight
-    ]);
+    templateClr,
+    getDate,
+    getStartDay,
+    dynMonth,
+    dynYear,
+    rangeId,
+    startAndendDate.startDate,
+    startAndendDate.endDate,
+    inRange,
+    selectType,
+    baseId,
+    disableState,
+    minDate,
+    disableDates,
+    maxDate,
+    disableCertainDate,
+    disableDays,
+    daysInMonth,
+    duelSlots,
+    singleSlots,
+    slotsDate,
+    highLight,
+  ]);
 
   useEffect(() => {
     handleRenderDate();
@@ -620,15 +605,21 @@ function Calendar({
     return selDate;
   };
 
-{console.log(calenderDates, "calenderDates")}
+  /**
+   *@returns {string} calendar contaier
+   */
+   const calendarContainer = () => {
+    if (duelSlots.length > 0) {
+      return "cld_slotWidth";
+    }
+    if (singleSlots.length > 0) {
+      return "cld_avlSlotWidth";
+    }
+    return "cld_noslotWidth";
+  };
+
   return (
-    <>
-    {calenderDates?.length > 0 &&
-    <div
-      className={`${
-        duelSlots.length > 0 ? "cld_slotWidth" : singleSlots.length > 0 ? "cld_avlSlotWidth" : "cld_noslotWidth"
-      } cld_container`}
-    >
+    <div className={`${calendarContainer()} cld_container`}>
       <div>
         {showDateInputField && (
           <CldDateField
@@ -639,7 +630,7 @@ function Calendar({
             propsMinDate={minDate}
             propsMaxDate={maxDate}
             disableCertainDate={disableCertainDate}
-            disableDay={disableDay}
+            disableDays={disableDays}
             daysInMonth={daysInMonth}
             showDatelabel={showDatelabel}
             templateClr={templateClr}
@@ -701,8 +692,7 @@ function Calendar({
           duelSlotState={duelSlots.length > 0}
         />
       )}
-    </div>}
-    </>
+    </div>
   );
 }
 

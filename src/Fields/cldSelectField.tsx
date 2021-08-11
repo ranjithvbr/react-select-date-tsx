@@ -40,22 +40,22 @@ export function SelectMonthField({ disableState, dynMonth, dynYear, handleChange
     if(disableState === "past"){
       if(minDate && maxDate){
         let dateSetPast = new Date(minDate) < new Date() ? new Date() : new Date(minDate);
-        return dateSetPast.getFullYear() === dynYear && dateSetPast.getMonth() > index || new Date(maxDate).getFullYear() === dynYear && new Date(maxDate).getMonth() < index;
+        return (dateSetPast.getFullYear() === dynYear && dateSetPast.getMonth() > index) || (new Date(maxDate).getFullYear() === dynYear && new Date(maxDate).getMonth() < index);
       }
       if(minDate && new Date(minDate) > new Date()){
         return new Date(minDate).getFullYear() === dynYear && new Date(minDate).getMonth() > index;
       }
       if(maxDate){
-        return currentDate.getFullYear() === dynYear && currentDate.getMonth() > index || new Date(maxDate).getFullYear() === dynYear && new Date(maxDate).getMonth() < index;
+        return (currentDate.getFullYear() === dynYear && currentDate.getMonth() > index) || (new Date(maxDate).getFullYear() === dynYear && new Date(maxDate).getMonth() < index);
       }
       return currentDate.getFullYear() === dynYear && currentDate.getMonth() > index;
     }else if(disableState === "future"){
       if(minDate && maxDate){
         let dateSet = new Date(maxDate) > new Date() ? new Date() : new Date(maxDate);
-        return new Date(minDate).getFullYear() === dynYear && new Date(minDate).getMonth() > index || dateSet.getFullYear() === dynYear && dateSet.getMonth() < index;
+        return (new Date(minDate).getFullYear() === dynYear && new Date(minDate).getMonth() > index) || (dateSet.getFullYear() === dynYear && dateSet.getMonth() < index);
       }
       if(minDate && new Date(minDate) < new Date()){
-        return new Date(minDate).getFullYear() === dynYear && new Date(minDate).getMonth() > index || currentDate.getFullYear() === dynYear && currentDate.getMonth() < index;
+        return (new Date(minDate).getFullYear() === dynYear && new Date(minDate).getMonth() > index) || (currentDate.getFullYear() === dynYear && currentDate.getMonth() < index);
       }
 
       if(maxDate && new Date(maxDate) < new Date()){
@@ -64,7 +64,7 @@ export function SelectMonthField({ disableState, dynMonth, dynYear, handleChange
       return currentDate.getFullYear() === dynYear && currentDate.getMonth() < index;
     }
     if(minDate && maxDate){
-      return new Date(minDate).getFullYear() === dynYear && new Date(minDate).getMonth() > index || new Date(maxDate).getFullYear() === dynYear && new Date(maxDate).getMonth() < index;
+      return (new Date(minDate).getFullYear() === dynYear && new Date(minDate).getMonth() > index) || (new Date(maxDate).getFullYear() === dynYear && new Date(maxDate).getMonth() < index);
     }
     if(minDate && !disableState){
       return new Date(minDate).getFullYear() === dynYear && new Date(minDate).getMonth() > index;
