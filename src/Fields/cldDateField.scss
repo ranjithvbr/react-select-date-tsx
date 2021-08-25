@@ -88,6 +88,16 @@
   justify-content: center;
 }
 
+.cld_startDateFieldOnly > div label{
+  font-size: 14px;
+  color: #545454;
+  font-weight: 500;
+}
+
+label ~ #start_Cld_Field{
+  margin-top: 3px;
+}
+
 .cld_startDateFieldOnly > div:first-child {
   width: 100%;
 }

@@ -41,7 +41,7 @@ function Calendar({
   templateClr,
   minDate,
   maxDate,
-  defaultValue,
+  defaultValue = {},
   disableDays,
 }: any) {
 
@@ -136,8 +136,8 @@ function Calendar({
     setSlotsDate(slotDateArr);
   }, [duelSlots, singleSlots]);
 
+  const defaultDependency = JSON.stringify(defaultValue)
   useEffect(()=>{
-
     if(selectDateType === "range" && (defaultValue && defaultValue.startDate && defaultValue.endDate)){
       const defaultRange = dateRange(new Date(defaultValue.startDate), new Date(defaultValue.endDate));
       const defaultAllRangeDate = defaultRange.map((date: Date) => `${addZero(date.getDate())}${addZero(date.getMonth() + 1)}${date.getFullYear()}`);
@@ -170,8 +170,8 @@ function Calendar({
       setBaseId([singleDefaultId])
       return
     }
-
-  },[defaultValue, selectDateType])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[selectDateType, defaultDependency])
 
   const rangeCalculater = useCallback(
     (id) => {
@@ -223,12 +223,13 @@ function Calendar({
   );
 
   useEffect(() => {
+    if(onSelect instanceof Function)
     if (selectType === "multiple") {
-      onSelect && onSelect(multipleDate);
+      onSelect(multipleDate);
     } else if (selectType === "range") {
-      onSelect && onSelect(startAndendDate);
+      onSelect(startAndendDate);
     } else {
-      onSelect && onSelect(startDate);
+      startDate && onSelect(startDate);
     }
   }, [startDate, multipleDate, startAndendDate, onSelect, selectType]);
 
@@ -349,7 +350,7 @@ function Calendar({
 
         const showDisableWhenRange =
           rangeId.length > 1 && (disableCertainDate.length > 0 || disableDay.length > 0) && 
-          getDisableWhenRange(disableCertainDate,disableDay, new Date(dateTypeId), rangeStartDate, rangeEndDate, daysInMonth);
+          getDisableWhenRange(disableCertainDate,disableDay, new Date(dateTypeId), rangeStartDate, rangeEndDate, daysInMonth, startAndendDate);
 
         const disableSpecificDate =
           disableCertainDate.length > 0 && getDisableCertainDate(new Date(dateTypeId), disableCertainDate);
@@ -457,8 +458,7 @@ function Calendar({
      dynMonth,
      dynYear,
      rangeId,
-     startAndendDate.startDate,
-     startAndendDate.endDate,
+     startAndendDate,
      inRange,
      selectType,
      baseId,
@@ -620,7 +620,6 @@ function Calendar({
     return selDate;
   };
 
-{console.log(calenderDates, "calenderDates")}
   return (
     <>
     {calenderDates?.length > 0 &&

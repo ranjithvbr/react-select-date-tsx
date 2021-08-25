@@ -218,11 +218,19 @@ export function getDisableCertainDate(renderDate: Date, disableCertainDate: any[
  * @param {string} rangeEndDate contain a date
  * @returns {string} disable date
  */
-export function getDisableWhenRange(disableCertainDate: any[],disableDays: any[], dateTypeId: string | number | Date, rangeStartDate: string | number, rangeEndDate: string | number,getDayArr: any) {
+export function getDisableWhenRange(disableCertainDate: any[],disableDays: any[], dateTypeId: string | number | Date, rangeStartDate: string | number, rangeEndDate: string | number,getDayArr: any, startAndendDate: any) {
   const disableCertainDateFormat: string[] = [];
   disableCertainDate.forEach((dt: string | number | Date) => {
     disableCertainDateFormat.push(formatDay(new Date(dt)));
   });
+
+  if(disableCertainDateFormat.length && disableCertainDateFormat.includes(formatDay(new Date(startAndendDate.startDate))) && formatDay(new Date(startAndendDate.startDate)) === formatDay(new Date(dateTypeId))){
+    return "startDateDisablebg"
+  }
+
+  if(disableCertainDateFormat.length && disableCertainDateFormat.includes(formatDay(new Date(startAndendDate.endDate))) && formatDay(new Date(startAndendDate.endDate)) === formatDay(new Date(dateTypeId))){
+    return "endDateDisablebg"
+  }
 
   if (
     dateTypeId > rangeStartDate &&
@@ -238,6 +246,15 @@ export function getDisableWhenRange(disableCertainDate: any[],disableDays: any[]
       disableCertainDayFormat.push(formatDay(new Date(dy)));
     } 
   })
+
+  if(disableCertainDayFormat.length && disableCertainDayFormat.includes(formatDay(new Date(startAndendDate.startDate))) && formatDay(new Date(startAndendDate.startDate)) === formatDay(new Date(dateTypeId))){
+    return "startDateDisablebg"
+  }
+
+  if(disableCertainDayFormat.length && disableCertainDayFormat.includes(formatDay(new Date(startAndendDate.endDate))) && formatDay(new Date(startAndendDate.endDate)) === formatDay(new Date(dateTypeId))){
+    return "endDateDisablebg"
+  }
+
   if (
     dateTypeId > rangeStartDate &&
     dateTypeId < rangeEndDate &&

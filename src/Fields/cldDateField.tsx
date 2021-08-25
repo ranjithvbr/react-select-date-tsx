@@ -39,6 +39,7 @@ function CldDateField({
   const [endDate, setEndDate] = useState<string>("");
   const [errMsgStart, setErrMsgStart] = useState<string | undefined>();
   const [errMsgEnd, setErrMsgEnd] = useState<string | undefined>();
+  const [windowDimensions, setWindowDimensions] = useState<any>(window.innerWidth);
   const [selectedDateFromField, setSelectedDateFromField] = useState({
     startDateFromField: "",
     endDateFromField: "",
@@ -50,6 +51,15 @@ function CldDateField({
   const templateOutline = useMemo(() => {
     return templateClr === "blue" ? "cld_blueOutline" : "cld_greenOutline";
   }, [templateClr]);
+
+  function handleResize() {
+    setWindowDimensions(window.innerWidth);
+  }
+
+  useEffect(() => {
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -222,6 +232,7 @@ function CldDateField({
             min={minAndmaxDate.minDate}
             max={minAndmaxDate.maxDate}
             className={templateOutline}
+            disabled={windowDimensions <= 612}
           />
         </div>
         {selectType === "range" && (
@@ -237,6 +248,7 @@ function CldDateField({
               min={minAndmaxDate.minDate}
               max={minAndmaxDate.maxDate}
               className={templateOutline}
+              disabled={windowDimensions <= 612}
             />
           </div>
         )}
