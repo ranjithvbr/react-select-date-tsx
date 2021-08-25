@@ -27,12 +27,12 @@ function App() {
       // disableDates="past"
       // disableDates="future" 
       // defaultValue={["2021-8-15", "2021-08-1", "2021-8-4", "2021-8-7", "2021-8-25", "2021-8-30", "2021-8-17"]} 
-      defaultValue={{startDate: "2021-8-15", endDate: "2021-8-22" }}
+      defaultValue={{startDate: "2021-8-13", endDate: "2021-8-23" }}
       // defaultValue={{date: "2021-8-15"}}
       onSelect={(date: any)=>console.log(date, "date")}
-      disableDays={["sun"]} 
+      disableDays={["sun", "sat"]} 
       // disableCertainDates={["2021-08-1", "2021-8-4", "2021-8-7", "2021-08-14", "2021-8-30", "2021-08-22"]}
-      singleSlotDates={singleSlotDates}
+      // singleSlotDates={singleSlotDates}
       // duelSlotDates={[{}]}
       templateClr="blue"
       />
