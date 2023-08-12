@@ -36,7 +36,7 @@ const daysArr = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
     if (format) {
       return `${months[Number(addZeroToMonth) - 1]} ${addZeroToDate},${date.getFullYear()}`;
     }
-    const dateIdFromCld = `${date.getFullYear()}-${addZeroToMonth}-${addZeroToDate}`;
+    const dateIdFromCld = `${date.getFullYear()}/${addZeroToMonth}/${addZeroToDate}`;
 
     return dateIdFromCld;
   }
@@ -234,7 +234,6 @@ export function getDisableWhenRange(disableCertainDate: any[],disableDays: any[]
 
   const disableCertainDayFormat: string[] = [];
   getDayArr?.forEach((dy: Date)=>{
-    console.log(disableDays.map((l)=>l.toLowerCase()), "toLowwercase")
     if(disableDays.includes(daysArr[(dy.getDay())])){
       disableCertainDayFormat.push(formatDay(new Date(dy)));
     } 
